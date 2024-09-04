@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using Entities;
 using System;
 using System.Collections.Generic;
@@ -10,29 +12,54 @@ namespace Business.Concrete
 {
     public class CarManager : ICarService
     {
-        public void Add(Car car)
+        private readonly ICarDal _carDal;
+
+        public CarManager(ICarDal carDal)
         {
-            throw new NotImplementedException();
+            _carDal = carDal;
         }
 
-        public void Delete(Car car)
+        public IDataResult<List<Car>> GetAll()
         {
-            throw new NotImplementedException();
+            var cars = _carDal.GetAll();
+            if (cars == null || cars.Count == 0)
+            {
+                return new ErrorDataResult<List<Car>>(CarMessages.NoCarsFound);
+            }
+
+            return new SuccessDataResult<List<Car>>(cars, CarMessages.CarsListed);
         }
 
-        public List<Car> GetAll()
+        public IDataResult<Car> GetById(int carId)
         {
-            throw new NotImplementedException();
+            var car = _carDal.Get(c => c.CarId == carId);
+            if (car == null)
+            {
+                return new ErrorDataResult<Car>(CarMessages.CarNotFound);
+            }
+
+            return new SuccessDataResult<Car>(car);
         }
 
-        public Car GetById(int carId)
+
+        public IResult Add(Car car)
         {
-            throw new NotImplementedException();
+            _carDal.Add(car);
+            return new SuccessResult(CarMessages.CarAdded);
         }
 
-        public void Update(Car car)
+
+        public IResult Update(Car car)
         {
-            throw new NotImplementedException();
+            _carDal.Update(car);
+            return new SuccessResult(CarMessages.CarUpdated);
+        }
+
+
+        public IResult Delete(Car car)
+        {
+            _carDal.Delete(car);
+            return new SuccessResult(CarMessages.CarDeleted);
         }
     }
 }

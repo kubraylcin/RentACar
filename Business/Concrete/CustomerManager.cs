@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using Entities;
 using System;
 using System.Collections.Generic;
@@ -10,29 +12,51 @@ namespace Business.Concrete
 {
     public class CustomerManager : ICustomerService
     {
-        public void Add(Customer customer)
+        private readonly ICustomerDal _customerDal;
+
+        public CustomerManager(ICustomerDal customerDal)
         {
-            throw new NotImplementedException();
+            _customerDal = customerDal;
         }
 
-        public void Delete(Customer customer)
+        public IDataResult<List<Customer>> GetAll()
         {
-            throw new NotImplementedException();
+            var customers = _customerDal.GetAll();
+            if (customers == null || customers.Count == 0)
+            {
+                return new ErrorDataResult<List<Customer>>(CustomerMessages.NoCustomersFound);
+            }
+
+            return new SuccessDataResult<List<Customer>>(customers, CustomerMessages.CustomersListed);
         }
 
-        public List<Customer> GetAll()
+        public IDataResult<Customer> GetById(int customerId)
         {
-            throw new NotImplementedException();
+            var customer = _customerDal.Get(c => c.CustomerId == customerId);
+            if (customer == null)
+            {
+                return new ErrorDataResult<Customer>(CustomerMessages.CustomerNotFound);
+            }
+
+            return new SuccessDataResult<Customer>(customer);
         }
 
-        public Customer GetById(int customerId)
+        public IResult Add(Customer customer)
         {
-            throw new NotImplementedException();
+            _customerDal.Add(customer);
+            return new SuccessResult(CustomerMessages.CustomerAdded);
         }
 
-        public void Update(Customer customer)
+        public IResult Update(Customer customer)
         {
-            throw new NotImplementedException();
+            _customerDal.Update(customer);
+            return new SuccessResult(CustomerMessages.CustomerUpdated);
+        }
+
+        public IResult Delete(Customer customer)
+        {
+            _customerDal.Delete(customer);
+            return new SuccessResult(CustomerMessages.CustomerDeleted);
         }
     }
 }

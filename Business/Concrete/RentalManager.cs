@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using Entities;
 using System;
 using System.Collections.Generic;
@@ -10,29 +12,52 @@ namespace Business.Concrete
 {
     public class RentalManager : IRentalService
     {
-        public void Add(Rental rental)
+        private readonly IRentalDal _rentalDal;
+
+        public RentalManager(IRentalDal rentalDal)
         {
-            throw new NotImplementedException();
+            _rentalDal = rentalDal;
         }
 
-        public void Delete(Rental rental)
+        public IDataResult<List<Rental>> GetAll()
         {
-            throw new NotImplementedException();
+            var rentals = _rentalDal.GetAll();
+            if (rentals == null || rentals.Count == 0)
+            {
+                return new ErrorDataResult<List<Rental>>(RentalMessages.NoRentalsFound);
+            }
+
+            return new SuccessDataResult<List<Rental>>(rentals, RentalMessages.RentalsListed);
         }
 
-        public List<Rental> GetAll()
+        public IDataResult<Rental> GetById(int rentalId)
         {
-            throw new NotImplementedException();
+            var rental = _rentalDal.Get(r => r.RentalId == rentalId);
+            if (rental == null)
+            {
+                return new ErrorDataResult<Rental>(RentalMessages.RentalNotFound);
+            }
+
+            return new SuccessDataResult<Rental>(rental);
         }
 
-        public Rental GetById(int rentalId)
+        public IResult Add(Rental rental)
         {
-            throw new NotImplementedException();
+            _rentalDal.Add(rental);
+            return new SuccessResult(RentalMessages.RentalAdded);
         }
 
-        public void Update(Rental rental)
+        public IResult Update(Rental rental)
         {
-            throw new NotImplementedException();
+            _rentalDal.Update(rental);
+            return new SuccessResult(RentalMessages.RentalUpdated);
         }
+
+        public IResult Delete(Rental rental)
+        {
+            _rentalDal.Delete(rental);
+            return new SuccessResult(RentalMessages.RentalDeleted);
+        }
+
     }
 }

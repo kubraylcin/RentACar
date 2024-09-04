@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Core.Utilities.Results;
+using DataAccess.Abstract;
 using Entities;
 using System;
 using System.Collections.Generic;
@@ -10,29 +12,51 @@ namespace Business.Concrete
 {
     public class PaymentManager : IPaymentService
     {
-        public void Add(Payment payment)
+        private readonly IPaymentDal _paymentDal;
+
+        public PaymentManager(IPaymentDal paymentDal)
         {
-            throw new NotImplementedException();
+            _paymentDal = paymentDal;
         }
 
-        public void Delete(Payment payment)
+        public IDataResult<List<Payment>> GetAll()
         {
-            throw new NotImplementedException();
+            var payments = _paymentDal.GetAll();
+            if (payments == null || payments.Count == 0)
+            {
+                return new ErrorDataResult<List<Payment>>(PaymentMessages.NoPaymentsFound);
+            }
+
+            return new SuccessDataResult<List<Payment>>(payments, PaymentMessages.PaymentsListed);
         }
 
-        public List<Payment> GetAll()
+        public IDataResult<Payment> GetById(int paymentId)
         {
-            throw new NotImplementedException();
+            var payment = _paymentDal.Get(p => p.PaymentId == paymentId);
+            if (payment == null)
+            {
+                return new ErrorDataResult<Payment>(PaymentMessages.PaymentNotFound);
+            }
+
+            return new SuccessDataResult<Payment>(payment);
         }
 
-        public Payment GetById(int paymentId)
+        public IResult Add(Payment payment)
         {
-            throw new NotImplementedException();
+            _paymentDal.Add(payment);
+            return new SuccessResult(PaymentMessages.PaymentAdded);
         }
 
-        public void Update(Payment payment)
+        public IResult Update(Payment payment)
         {
-            throw new NotImplementedException();
+            _paymentDal.Update(payment);
+            return new SuccessResult(PaymentMessages.PaymentUpdated);
+        }
+
+        public IResult Delete(Payment payment)
+        {
+            _paymentDal.Delete(payment);
+            return new SuccessResult(PaymentMessages.PaymentDeleted);
         }
     }
 }
