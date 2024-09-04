@@ -1,4 +1,5 @@
-﻿using Entities;
+﻿using Core.Utilities.Results;
+using Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Business.Abstract
 {
     public interface IPaymentService
     {
-        List<Payment> GetAll();
-        void Add(Payment payment);
-        void Update(Payment payment);
-        void Delete(Payment payment);
-        Payment GetById(int paymentId);
+        IDataResult<List<Payment>> GetAll();
+        IDataResult<Payment> GetById(int paymentId);
+        IResult Add(Payment payment);
+        IResult Update(Payment payment);
+        IResult Delete(Payment payment);
     }
 }
