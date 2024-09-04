@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Core.Constans.Messages;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities;
@@ -32,7 +33,7 @@ namespace Business.Concrete
 
         public IDataResult<Rental> GetById(int rentalId)
         {
-            var rental = _rentalDal.Get(r => r.RentalId == rentalId);
+            var rental = _rentalDal.Get(r => r.Id == rentalId);
             if (rental == null)
             {
                 return new ErrorDataResult<Rental>(RentalMessages.RentalNotFound);
