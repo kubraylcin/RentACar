@@ -1,32 +1,47 @@
-using Business.Abstract;
-using Business.Concrete;
-using DataAccess.Abstract;
-using DataAccess.Concrete.EntityFramework;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Business.DependencyResolvers.Autofac;
 
-var builder = WebApplication.CreateBuilder(args);
+var host = CreateHostBuilder(args).Build();
 
-// Add services to the container.
+host.Run();
 
-builder.Services.AddControllers();
+static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+    .ConfigureContainer<ContainerBuilder>(builder =>
+    {
+        // Autofac ile bağımlılık enjeksiyonunu yapılandır
+        builder.RegisterModule(new AutofacBusinessModule());
+    })
+    .ConfigureWebHostDefaults(webBuilder =>
+    {
+        // ASP.NET Core web host konfigürasyonu
+        webBuilder.Configure(app =>
+        {
+            // HTTPS yönlendirmesi, yetkilendirme, rota kullanımı ve Swagger entegrasyonu gibi middleware'leri ekler.
+            app.UseHttpsRedirection();
+            app.UseRouting();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ICarService,CarManager>();
-builder.Services.AddSingleton<ICarDal,EfCarDal>();
-var app = builder.Build();
+            // UseAuthorization, UseRouting'den sonra gelmelidir
+            app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+            });
+        });
+    })
+    .ConfigureServices(services =>
+    {
+        // ASP.NET Core servisleri konfigürasyonu: 
+        // Kontrolleri ekler, endpoint API keşfi ve Swagger belgelemesi için gerekli olan servisleri ekler.
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+    });
