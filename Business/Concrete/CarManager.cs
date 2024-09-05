@@ -1,5 +1,6 @@
 ﻿using Business.Abstract;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.Constans.Messages;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
@@ -44,7 +45,7 @@ namespace Business.Concrete
             return new SuccessDataResult<Car>(car);
         }
 
-
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
             ValidationTool.Validate(new CarValidator(),car);
@@ -52,14 +53,14 @@ namespace Business.Concrete
             return new SuccessResult(CarMessages.CarAdded);
         }
 
-
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Update(Car car)
         {
             _carDal.Update(car);
             return new SuccessResult(CarMessages.CarUpdated);
         }
 
-
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Delete(Car car)
         {
             _carDal.Delete(car);

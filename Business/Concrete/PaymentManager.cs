@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.Constans.Messages;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
@@ -41,19 +43,19 @@ namespace Business.Concrete
 
             return new SuccessDataResult<Payment>(payment);
         }
-
+        [ValidationAspect(typeof(PaymentValidator))]
         public IResult Add(Payment payment)
         {
             _paymentDal.Add(payment);
             return new SuccessResult(PaymentMessages.PaymentAdded);
         }
-
+        [ValidationAspect(typeof(PaymentValidator))]
         public IResult Update(Payment payment)
         {
             _paymentDal.Update(payment);
             return new SuccessResult(PaymentMessages.PaymentUpdated);
         }
-
+        [ValidationAspect(typeof(PaymentValidator))]
         public IResult Delete(Payment payment)
         {
             _paymentDal.Delete(payment);

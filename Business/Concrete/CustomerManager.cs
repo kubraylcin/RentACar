@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.Constans.Messages;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
@@ -41,19 +43,19 @@ namespace Business.Concrete
 
             return new SuccessDataResult<Customer>(customer);
         }
-
+        [ValidationAspect(typeof(CustomerValidator))]
         public IResult Add(Customer customer)
         {
             _customerDal.Add(customer);
             return new SuccessResult(CustomerMessages.CustomerAdded);
         }
-
+        [ValidationAspect(typeof(CustomerValidator))]
         public IResult Update(Customer customer)
         {
             _customerDal.Update(customer);
             return new SuccessResult(CustomerMessages.CustomerUpdated);
         }
-
+        [ValidationAspect(typeof(CustomerValidator))]
         public IResult Delete(Customer customer)
         {
             _customerDal.Delete(customer);
