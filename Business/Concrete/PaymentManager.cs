@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
 using Core.Constans.Messages;
@@ -43,6 +44,7 @@ namespace Business.Concrete
 
             return new SuccessDataResult<Payment>(payment);
         }
+        [SecuredOperation("Admin,Accounting")]
         [ValidationAspect(typeof(PaymentValidator))]
         public IResult Add(Payment payment)
         {
